@@ -5,61 +5,58 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lab_week_06.model.CatModel
 
+// --- Missing Imports Added Below ---
+import com.example.lab_week_06.ImageLoader
+import com.example.lab_week_06.CatViewHolder
+
 /**
  * Adapter for the RecyclerView that displays a list of cats.
  *
  * @param layoutInflater Inflater to create views from the XML layout.
  * @param imageLoader An abstraction for loading images (e.g., GlideImageLoader).
+ * @param onClickListener A listener to handle item click events.
  */
 class CatAdapter(
     private val layoutInflater: LayoutInflater,
-    private val imageLoader: ImageLoader
+    private val imageLoader: ImageLoader,
+    private val onClickListener: OnClickListener // onClickListener is now a required parameter
 ) : RecyclerView.Adapter<CatViewHolder>() {
 
-    // Private mutable list to hold the data for the adapter.
     private val cats = mutableListOf<CatModel>()
 
-    /**
-     * Clears the existing data and adds a new list of cats.
-     * Notifies the adapter that the data set has changed to trigger a UI refresh.
-     *
-     * Note: For better performance with large lists, consider using DiffUtil
-     * instead of notifyDataSetChanged().
-     *
-     * @param newCats The new list of CatModel objects to display.
-     */
     fun setData(newCats: List<CatModel>) {
         cats.clear()
         cats.addAll(newCats)
-        // This tells the RecyclerView that the entire dataset has changed.
-        notifyDataSetChanged()
+        notifyDataSetChanged() // In a production app, consider using DiffUtil for better performance.
     }
 
-    /**
-     * Called when RecyclerView needs a new ViewHolder. It inflates the item layout
-     * and creates the ViewHolder.
-     */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CatViewHolder {
-        // Inflate the XML layout for each item in the list.
         val view = layoutInflater.inflate(R.layout.item_list, parent, false)
-        // Create and return a new ViewHolder instance.
+        // Pass the imageLoader to the ViewHolder, but not the click listener yet.
         return CatViewHolder(view, imageLoader)
     }
 
-    /**
-     * Returns the total number of items in the data set held by the adapter.
-     */
-    override fun getItemCount(): Int = cats.size
+    override fun getItemCount() = cats.size
+
+    override fun onBindViewHolder(holder: CatViewHolder, position: Int) {
+        // Get the data for the current item
+        val cat = cats[position]
+
+        // Bind the data to the views within the ViewHolder
+        holder.bindData(cat)
+
+        // Set the click listener on the entire item view
+        // This is the standard place to set item-specific listeners
+        holder.itemView.setOnClickListener {
+            onClickListener.onItemClick(cat)
+        }
+    }
 
     /**
-     * Called by RecyclerView to display the data at the specified position.
-     * It gets the data for the current position and binds it to the ViewHolder.
+     * An interface that the hosting Activity or Fragment will implement
+     * to receive click events.
      */
-    override fun onBindViewHolder(holder: CatViewHolder, position: Int) {
-        // Get the data model for the current position.
-        val cat = cats[position]
-        // The holder.bindData function is defined in the CatViewHolder class.
-        // It's responsible for populating the item's views with the cat's data.
-        holder.bindData(cat)
+    interface OnClickListener {
+        fun onItemClick(cat: CatModel)
     }
 }

@@ -4,22 +4,24 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lab_week_06.model.CatBreed // Added import
-import com.example.lab_week_06.model.CatModel // Added import
-import com.example.lab_week_06.model.Gender // Added import
+import com.example.lab_week_06.model.CatBreed
+import com.example.lab_week_06.model.CatModel
+import com.example.lab_week_06.model.Gender
 
 /**
  * ViewHolder for displaying a single cat item in the RecyclerView.
  *
  * This class holds references to the views in the item layout and contains
- * the logic to bind a CatModel object to those views.
+ * the logic to bind a CatModel object to those views. Its only responsibilities
+ * are finding views and populating them with data.
  *
  * @param containerView The root view of the item layout (e.g., a ConstraintLayout).
  * @param imageLoader An interface used to load the cat's photo.
  */
 class CatViewHolder(
-    containerView: View,
+    containerView: View, // Changed from private to default (public)
     private val imageLoader: ImageLoader
+    // The OnClickListener has been removed from the constructor
 ) : RecyclerView.ViewHolder(containerView) {
 
     companion object {
@@ -30,7 +32,6 @@ class CatViewHolder(
     }
 
     // Lazily initialize views to improve performance.
-    // findViewById is only called the first time each view is accessed.
     private val catBiographyView: TextView by lazy {
         containerView.findViewById(R.id.cat_biography)
     }
@@ -54,27 +55,25 @@ class CatViewHolder(
      * @param cat The data model for the current cat item.
      */
     fun bindData(cat: CatModel) {
-        // Use the ImageLoader to load the cat's photo into the ImageView.
-        imageLoader.loadImage(cat.imageUrl, catPhotoView)
+        // The setOnClickListener has been removed from here.
+        // It's now handled in the adapter's onBindViewHolder.
 
-        // Set the simple text fields.
+        imageLoader.loadImage(cat.imageUrl, catPhotoView)
         catNameView.text = cat.name
         catBiographyView.text = cat.biography
 
-        // Use a 'when' statement to convert the CatBreed enum to a displayable String.
         catBreedView.text = when (cat.breed) {
             CatBreed.AmericanCurl -> "American Curl"
             CatBreed.BalineseJavanese -> "Balinese-Javanese"
             CatBreed.ExoticShorthair -> "Exotic Shorthair"
-            // The 'else' case handles any other or unknown breeds gracefully.
             else -> "Unknown"
         }
 
-        // Use a 'when' statement to convert the Gender enum to a symbol.
         catGenderView.text = when (cat.gender) {
             Gender.Female -> FEMALE_SYMBOL
             Gender.Male -> MALE_SYMBOL
             else -> UNKNOWN_SYMBOL
         }
     }
+    // The redundant OnClickListener interface has been removed from here.
 }
